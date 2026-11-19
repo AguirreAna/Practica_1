@@ -10,13 +10,19 @@ import {
 
 export const authRoutes = Router();
 
-// TODO: 1. Decidir y aplicar los middlewares que correspondan a cada ruta.
+// =====================================================================
+// RUTAS DE AUTENTICACIÓN  (app.js las monta en "/api")
+// Orden de middlewares en cada ruta:
+//   [authMiddleware] -> validaciones -> validator -> controlador
+//   - validaciones: reglas de express-validator (solo guardan los errores)
+//   - validator: si hay errores corta con 400; si no, llama a next()
+// =====================================================================
 
-// ? Registro de usuario: acceso público.
-authRoutes.post("/auth/register", register);
+// Registro de usuario: acceso público (sin authMiddleware) y con datos válidos.
+authRoutes.post("/auth/register", registerValidation, validator, register);
 
-// ? Inicio de sesión: acceso público.
-authRoutes.post("/auth/login", login);
+// Inicio de sesión: acceso público y con datos válidos.
+authRoutes.post("/auth/login", loginValidation, validator, login);
 
-// ? Cierre de sesión: requiere sesión iniciada.
-authRoutes.post("/auth/logout", logout);
+// Cierre de sesión: requiere sesión iniciada (si no hay token responde 401).
+authRoutes.post("/auth/logout", authMiddleware, logout);
